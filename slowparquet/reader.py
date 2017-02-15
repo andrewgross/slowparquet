@@ -8,13 +8,14 @@ import os
 import re
 import struct
 
-import thriftpy
+from .thrift import read_metadata
 
 
 class ParquetFile(object):
 
     def __init__(self, file_location):
         self.file_location = file_location
+        self.metadata = self._read_metadata()
 
     def _get_metadata_location(self, file_location):
         metadata_location = os.sep.join([file_location, '_metadata'])
@@ -22,13 +23,13 @@ class ParquetFile(object):
             metadata_location = file_location
         return file_location
 
-    def read_metadata(self):
+    def _read_metadata(self):
         metadata_location = self._get_metadata_location(self.file_location)
         with open(metadata_location, 'rb') as f:
             self._check_header_magic_number(f)
             self._check_footer_magic_number(f)
             footer_length = self._get_footer_length(f)
-            metadata = self._read_footer(f, footer_length)
+            return self._read_footer(f, footer_length)
 
     def _check_header_magic_number(self, _file):
         _file.seek(0)
@@ -51,12 +52,9 @@ class ParquetFile(object):
         # Account for magic number and footer length field
         footer_start = footer_length + 8
         _file.seek(-footer_start, os.SEEK_END)
-        return _parse_footer(_file)
-
-    def _parse_footer(_file):
-        pass
+        return read_metadata(_file)
 
     def __str__(self):
-        return "<Parquet File: %s>" % self.info
+        return "<Parquet File: %s>" % self.file_location
 
     __repr__ = __str__
