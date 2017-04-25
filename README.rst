@@ -1,15 +1,15 @@
-Slowparquet - A Mostly python parquet reader/wire
+Slowparquet - A Mostly python parquet reader/writer
 =========================================================================
 
 **WARNING: This library is still in beta. It can do anything up to and
 including eating your laundry.**
 
-Slowparquet is handler for the Parquet file format. It's goal is to provide a simple
+Slowparquet is handler for the Parquet file format. Its goal is to provide a simple
 library for working with Parquet files.  It does not use Pandas to manage
 data, despite that being superior for most use cases.  This is due to issues with
 handling Null values in integer based columns, a requirement for work we are doing
 with Parquet.  If that is not a factor, it is recommended you use **fastparquet**
-which is designed to work with Pandas and take advantage of it's speedups.
+which is designed to work with Pandas and take advantage of its speedups.
 
 Installation
 ------------

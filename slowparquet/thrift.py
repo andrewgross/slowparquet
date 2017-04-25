@@ -12,7 +12,11 @@ from thriftpy.protocol.compact import TCompactProtocolFactory
 from thriftpy.transport import TTransportBase, TTransportException
 
 
-class TFileTransport(TTransportBase):  # pylint: disable=too-few-public-methods
+THRIFT_FILE = os.path.join(os.path.dirname(__file__), "parquet.thrift")
+PARQUET_THRIFT = thriftpy.load(THRIFT_FILE, module_name=str("parquet_thrift"))
+
+
+class TFileTransport(TTransportBase):
     """TTransportBase implementation for decoding data from a file object."""
 
     def __init__(self, fo):
@@ -30,16 +34,22 @@ class TFileTransport(TTransportBase):  # pylint: disable=too-few-public-methods
     write = _write
 
 
-THRIFT_FILE = os.path.join(os.path.dirname(__file__), "parquet.thrift")
-parquet_thrift = thriftpy.load(THRIFT_FILE, module_name=str("parquet_thrift"))
-
-
 def read_metadata(_file):
     """
     Read the file metadata, given a file at the correct offset
     """
     try:
-        return read_thrift(_file, parquet_thrift.FileMetaData)
+        return read_thrift(_file, PARQUET_THRIFT.FileMetaData)
+    except thriftpy.transport.TTransportException:
+        raise Exception('Unable to parse metadata for {} at offset {}'.format(_file.name, _file.tell()))
+
+
+def read_page_header(_file):
+    """
+    Read the page header, given a file ata the correct offset
+    """
+    try:
+        return read_thrift(_file, PARQUET_THRIFT.PageHeader)
     except thriftpy.transport.TTransportException:
         raise Exception('Unable to parse metadata for {} at offset {}'.format(_file.name, _file.tell()))
 
